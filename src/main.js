@@ -22,16 +22,18 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true,
+            debug: false,
             gravity: {
                 x: 0,
                 y: 0
             }
         }
     },
-    width: 1440,
-    height: 900,
-    scene: [Load, Platformer]
+    //width: 1440,
+    //height: 900,
+    width: window.innerWidth, //Scale game window
+    height: window.innerHeight,
+    scene: [Load, Platformer, GameOver, GameWin]
 }
 
 var cursors;
