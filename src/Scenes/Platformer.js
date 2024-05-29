@@ -1,5 +1,5 @@
 // global variables
-var timeLimit = 2; // timeLimit for countdown in seconds
+var timeLimit = 120; // timeLimit for countdown in seconds
 var timeOver = false; // set to false at start
 var timeBar; // display time remaining
 
@@ -19,17 +19,10 @@ class Platformer extends Phaser.Scene {
         this.SCALE = 2.0;
     }
 
-    //TODO: Add timer, add water collision
-    //TODO: Add game over/death, add restart
     create() {
         this.setMap();
         this.setTimer();
-
-        // Find coins in the "Objects" layer in Phaser
-        // Look for them by finding objects with the name "coin"
-        // Assign the coin texture from the tilemap_sheet sprite sheet
-        // Phaser docs:
-        // https://newdocs.phaser.io/docs/3.80.0/focus/Phaser.Tilemaps.Tilemap-createFromObjects
+        
         this.doughnut = this.map.createFromObjects("objects", {
             name: "doughnut",
             key: "food_sheet",
@@ -52,7 +45,7 @@ class Platformer extends Phaser.Scene {
         this.physics.world.enable(this.burger, Phaser.Physics.Arcade.STATIC_BODY);
         this.physics.world.enable(this.sushi, Phaser.Physics.Arcade.STATIC_BODY);
 
-        //TODO: Combine these into a single group
+        //TODO: Combine these into a single group?
         this.doughnutGroup = this.add.group(this.doughnut);
         this.burgerGroup = this.add.group(this.burger);
         this.sushiGroup = this.add.group(this.sushi);
@@ -123,11 +116,9 @@ class Platformer extends Phaser.Scene {
     movementVFX() {
         my.vfx.walking = this.add.particles(0, 0, "kenny-particles", {
             frame: ['smoke_03.png', 'smoke_09.png'],
-            // TODO: Try: add random: true
             scale: {start: 0.03, end: 0.1},
-            // TODO: Try: maxAliveParticles: 8,
-            lifespan: 350,
-            // TODO: Try: gravityY: -400,
+            maxAliveParticles: 6, //Decreased the amount of smoke from player movement
+            lifespan: 350, 
             alpha: {start: 1, end: 0.1}, 
         });
 
@@ -155,13 +146,21 @@ class Platformer extends Phaser.Scene {
         this.timeBar.setScrollFactor(0);
     }
 
-
+    //TODO: Issue with time resetting. Cannot access time var to reset to 0.
+    //Player must manually reload the game for the timer to reset correctly
     update(time) {
         this.checkKeyPress();
         if (timeOver == false) {
-            this.displayTimeRemaining(time);
+            this.displayTimeRemaining(time); 
         } else {
             this.scene.start("gameOver");
+        }
+
+        //Go to win screen if all food items are collected
+        if ((this.doughnutGroup.getLength() == 0) &&
+            (this.burgerGroup.getLength() == 0) &&
+            (this.sushiGroup.getLength() == 0)) {
+            this.scene.start("gameWin");
         }
     }
 
@@ -213,7 +212,6 @@ class Platformer extends Phaser.Scene {
 
     //Updates timer bar
     displayTimeRemaining(currTime) {
-        //var time = Math.floor(game.time.totalElapsedSeconds());
         var time = Math.floor(currTime/1000); //Convert time from milliseconds to seconds
         var timeLeft = timeLimit - time;
     
