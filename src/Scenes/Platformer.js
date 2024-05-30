@@ -66,7 +66,7 @@ class Platformer extends Phaser.Scene {
         this.spaceKey = this.input.keyboard.addKey('SPACE');
 
         this.movementVFX();
-        this.collectionVFX(); //TEST
+        this.collectionVFX();
         this.setCamera();
     }
 
@@ -104,7 +104,7 @@ class Platformer extends Phaser.Scene {
             obj2.destroy(); //remove food on overlap
             //Play sparkle animation
             my.vfx.collection.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
-            my.vfx.collection.startFollow(my.sprite.player, my.sprite.player.displayWidth/2, 0, false);
+            my.vfx.collection.startFollow(my.sprite.player, my.sprite.player.displayWidth/2, -my.sprite.player.displayHeight, false);
             my.vfx.collection.start();
             this.timedEvent = this.time.addEvent({ delay: 500, callback: this.onEvent, callbackScope: this, loop: true });
         });
