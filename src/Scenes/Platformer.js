@@ -66,6 +66,7 @@ class Platformer extends Phaser.Scene {
         this.spaceKey = this.input.keyboard.addKey('SPACE');
 
         this.movementVFX();
+        this.collectionVFX(); //TEST
         this.setCamera();
     }
 
@@ -95,15 +96,23 @@ class Platformer extends Phaser.Scene {
         this.groundLayer2.setCollisionByProperty({
             collides:true
         });
-
-        this.groundLayer1.setCollision(false,false,true,false); //TODO: Fix
     }
 
     //Check collision for multiple food objects with player
     checkCollision(food) {
         this.physics.add.overlap(my.sprite.player, food, (obj1, obj2) => {
             obj2.destroy(); //remove food on overlap
+            //Play sparkle animation
+            my.vfx.collection.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
+            my.vfx.collection.startFollow(my.sprite.player, my.sprite.player.displayWidth/2, 0, false);
+            my.vfx.collection.start();
+            this.timedEvent = this.time.addEvent({ delay: 500, callback: this.onEvent, callbackScope: this, loop: true });
         });
+    }
+
+    //Helper function to stop playing sparkle animation after short time
+    onEvent() {
+        my.vfx.collection.stop();
     }
 
      //Set up player avatar
@@ -121,8 +130,19 @@ class Platformer extends Phaser.Scene {
             lifespan: 350, 
             alpha: {start: 1, end: 0.1}, 
         });
-
         my.vfx.walking.stop();
+    }
+
+    //Add particles for when food is collected
+    collectionVFX() {
+        my.vfx.collection = this.add.particles(0, 0 , "kenny-particles", {
+            frame: ['star_02.png', 'star_04.png'],
+            scale: {start: 0.03, end: 0.1},
+            maxAliveParticles: 6,
+            lifespan: 400, 
+            alpha: {start: 1, end: 0.1}, 
+        });
+        my.vfx.collection.stop();
     }
 
     //Set up the camera
@@ -156,12 +176,7 @@ class Platformer extends Phaser.Scene {
             this.scene.start("gameOver");
         }
 
-        //Go to win screen if all food items are collected
-        if ((this.doughnutGroup.getLength() == 0) &&
-            (this.burgerGroup.getLength() == 0) &&
-            (this.sushiGroup.getLength() == 0)) {
-            this.scene.start("gameWin");
-        }
+        this.checkWinCondition();
     }
 
     //Check for specific key presses
@@ -221,5 +236,14 @@ class Platformer extends Phaser.Scene {
             timeOver = true;
         }
         this.timeBar.setScale(timeLeft / timeLimit, 1);
+    }
+        
+    //Go to win screen if all food items are collected
+    checkWinCondition() {
+        if ((this.doughnutGroup.getLength() == 0) &&
+            (this.burgerGroup.getLength() == 0) &&
+            (this.sushiGroup.getLength() == 0)) {
+            this.scene.start("gameWin");
+        }
     }
 }
