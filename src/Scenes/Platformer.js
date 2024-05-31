@@ -8,6 +8,11 @@ class Platformer extends Phaser.Scene {
         super("platformerScene");
     }
 
+    preload() {
+        this.load.setPath("./assets/");
+        this.load.audio("collectSound", 'collectableFood.ogg');
+    }
+
 
     init() {
         // variables and settings
@@ -106,11 +111,16 @@ class Platformer extends Phaser.Scene {
             my.vfx.collection.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
             my.vfx.collection.startFollow(my.sprite.player, my.sprite.player.displayWidth/2, -my.sprite.player.displayHeight, false);
             my.vfx.collection.start();
+            //Play sound
+            this.sound.play("collectSound", {
+                volume: 0.5
+            });
             this.timedEvent = this.time.addEvent({ delay: 500, callback: this.onEvent, callbackScope: this, loop: true });
         });
     }
 
     //Helper function to stop playing sparkle animation after short time
+    //Also plays sound effect
     onEvent() {
         my.vfx.collection.stop();
     }
